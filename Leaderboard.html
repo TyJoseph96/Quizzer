@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- NAV BAR -->
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav class="nav">
+        <ul>
+            <a href="Home.html" class="nav-logo">QUIZER</a>
+            <li><a href="Home.html">Home</a></li>
+            <li class="dropdown">
+                <a href="Games.html" class="active">Games</a>
+                <div class="dropdown-content">
+                    <a href="Games.html">All Categories</a>
+                    <a href="quizs.html">Play Quiz</a>
+                    <a href="create-quiz.html">Create Quiz</a>
+                </div>
+            </li>
+            <li><a href="Leaderboard.html">Leaderboard</a></li>
+            <li><a href="login.html" class="active">Login</a></li>
+        </ul>
+    </nav>
+
+
+
+            
+
+    <div class="leaderboard-page">
+
+        <h1 class="page-title">🏆 Leaderboard</h1>
+        <p class="page-subtitle">Your top 5 scores across all categories</p>
+
+        <!-- TABLE HEADER -->
+        <div class="leaderboard-table">
+
+            <div class="leaderboard-header">
+                <span>Rank</span>
+                <span>Category</span>
+                <span>Score</span>
+                <span>Date</span>
+            </div>
+
+            <!-- scores go here — built by JavaScript -->
+            <div id="leaderboard-list"></div>
+
+        </div>
+
+        <button class="clear-scores-btn" onclick="clearScores()">
+            Clear All Scores 🗑️
+        </button>
+
+    </div>
+
+    <script>
+        // ---- DISPLAY SCORES ----
+
+        async function dispalyScores() {
+
+            const list = document.getElementById("leaderboard-list");
+            list.innerHTML = "<p class='no scores'>Loading scores...</p>";
+
+            const categoryNames = {
+                general: "General",
+                lore: "Lore",
+                console: "Consoles",
+                retro: "Retro",
+                fps: "FPS"
+            };
+
+            try {
+
+                //FETCH TOP 10 SCORES FROM ALL PLAYERS
+                const response = await fetch(
+                    "http://localhost:3000/api/scores/leaderboard"
+             ); 
+                const score = await respone.json();
+
+                if (!response.ok || scores.lenght === 0) {
+                    list.innerHTML =
+                         "<p class='no-scores'>No scores yet — go play a quiz! </p>";
+                    return;
+                }
+
+                list.innerHTML = "";
+
+                scores.forEach(function(entry, index) {
+
+                    const row     = document.createElement("div");
+                    row.className = "leaderboard-row";
+                    if (index === 0) row.classList.add("top-socre");
+
+                    let rank = "";
+                    if     (index === 0) rank = "🥇";
+                    else if (index ===1) rank = "🥈";
+                    else if (index ===2) rank = "🥉";
+                    else     rank = "#" (indez + 1);
+                  
+                    // MONGODB TIMESTAMP
+
+                    const d = new Date(entry,createdAt);
+                    const dataDisplay = 
+                          String(d.getDate()).padStart(2, "0")      +"/" +
+                          String(d.getMonth() + 1).padStart(2, "0") + "/" +
+                          d.getFullYear();
+
+                    const catName = categoryNames[entry.category] || "Gaming";
+
+                    row.innerHTML =  `
+                    <span class="leaderboard-rank">${rank}</span>
+                    <span class="leaderboard-category">
+                        ${entry.username}
+                        <small style="color:#aaa;">
+                            ${catName}
+                        </small>
+                    </span>
+                    <span class="leaderboard-score">
+                        ${entry.score} / ${entry.total}
+                    </span>
+                    <span class="leaderboard-date">${dateDisplay}</span>
+                `;
+    
+                list.appendChild(row);
+    
+            });
+
+        } catch (error) {
+            // Server not running — fall back to localStorage
+            displayLocalScores();
+
+        }
+ 
+    }
+              // ---- Fallback to localStorage ----
+            function displayLocalScores() {
+
+                const list       = document.getElementById("leaderboard-list");
+                const savedScores = localStorage.getItem("gamingQuizScores");
+                const scores      = savedScores ? JSON.parse(savedScores) : [];
+
+                if (scores.lenght ===0) {
+                    list.innerHTML =
+                    "<p class='no-scores'>No scores yet - go play quiz! </p>";
+                    return;
+                }
+
+                list.innerHTML = "";
+
+                scores.forEach(function(entry, index) {
+                    const row    = document.createElement("div");
+                    row.className = "leaderboard-row";
+                    if (index === 0) row.classList.add("top-score");
+
+                    let rank = "";
+                    if      (index ===0) rank = "🥇";
+                    else if (index ===1) rank = "🥈";
+                    else if (index ===2) rank = "🥉";
+                    else                 rank = "#" + (index +1);
+
+                    row.innerHTML = `
+            <span class="leaderboard-rank">${rank}</span>
+            <span class="leaderboard-category">You</span>
+            <span class="leaderboard-score">
+                ${entry.score} / ${entry.total}
+            </span>
+            <span class="leaderboard-date">${entry.date}</span>
+        `;
+
+        list.appendChild(row);
+
+    });
+            }
+
+            // ===== CLEAR SCORES
+
+            function clearScores() {
+                 if (confirm("Are you sure you want to clear local scrors")) {
+                    localStorage.removeItem("gameingQuizscores");
+                    dispalyScores();
+                 }
+            }
+            window.onload = function() {
+                dispalyScores();
+            
+             
+                    loadCommunityQuizzes();  // existing code
+                
+                    // ADD THIS BELOW existing code
+                    const username = localStorage.getItem("username");
+                    const token    = localStorage.getItem("token");
+                
+                    if (username && token) {
+                        const nav    = document.querySelector(".nav ul");
+                        const li     = document.createElement("li");
+                        li.innerHTML = `
+                            <a href="profile.html?username=${username}">
+                                👾 ${username}
+                            </a>
+                        `;
+                        nav.appendChild(li);
+                    }
+                };
+    </script>
+</body>
+</html>

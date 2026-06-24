@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- NAV BAR -->
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav class="nav">
+        <ul>
+            <a href="Home.html" class="nav-logo">QUIZER</a>
+            <li><a href="Home.html">Home</a></li>
+            <li class="dropdown">
+                <a href="Games.html" class="active">Games</a>
+                <div class="dropdown-content">
+                    <a href="Games.html">All Categories</a>
+                    <a href="quizs.html">Play Quiz</a>
+                    <a href="create-quiz.html">Create Quiz</a>
+                </div>
+            </li>
+            <li><a href="Leaderboard.html">Leaderboard</a></li>
+            <li><a href="login.html" class="active">Login</a></li>
+        </ul>
+    </nav>
+
+  <!-- COMMUNITY QUIZZES SECTION -->
+<div class="community-section">
+
+    <!-- section title -->
+    <h2 class="community-quizzes">Community Quizzes</h2>
+    <p class="quizzes-created">Quizzes created by other players</p>
+
+    <!-- JavaScript fills this with cards -->
+    <div class="community-card" id="community-games"></div>
+
+    <!-- create quiz button -->
+    <a href="create-quiz.html" class="community-icon">+ Create Your Own Quiz</a>
+
+</div>
+
+
+    <!-- CATEGORY SELECTION -->
+    <div class="page-container">
+
+        <h1 class="page-title">Choose a Category</h1>
+        <p class="page-subtitle">Pick a category and test your gaming knowledge!</p>
+
+        <div class="category-grid">
+
+            <!-- each card saves the category and goes to the quiz -->
+            <div class="category-card" onclick="selectCategory('general')">
+                <div class="category-icon">🎮</div>
+                <h2>General Gaming</h2>
+                <p>Broad gaming knowledge across all genres and platforms</p>
+                <div class="category-meta">
+                    <span>25 Questions</span>
+                    <span class="diff-medium">Medium</span>
+                </div>
+            </div>
+
+            <div class="category-card" onclick="selectCategory('lore')">
+                <div class="category-icon">⚔️</div>
+                <h2>Lore & RPG</h2>
+                <p>Deep dives into game stories, worlds and characters</p>
+                <div class="category-meta">
+                    <span>25 Questions</span>
+                    <span class="diff-hard">Hard</span>
+                </div>
+            </div>
+
+            <div class="category-card" onclick="selectCategory('console')">
+                <div class="category-icon">🏆</div>
+                <h2>Console Wars</h2>
+                <p>History of gaming hardware, companies and generations</p>
+                <div class="category-meta">
+                    <span>25 Questions</span>
+                    <span class="diff-medium">Medium</span>
+                </div>
+            </div>
+
+            <div class="category-card" onclick="selectCategory('retro')">
+                <div class="category-icon">👾</div>
+                <h2>Retro & Classics</h2>
+                <p>Golden age gaming from the 70s, 80s and 90s</p>
+                <div class="category-meta">
+                    <span>25 Questions</span>
+                    <span class="diff-hard">Hard</span>
+                </div>
+            </div>
+
+            <div class="category-card" onclick="selectCategory('fps')">
+                <div class="category-icon">🔫</div>
+                <h2>FPS & Shooters</h2>
+                <p>First person shooters, tactical and military titles</p>
+                <div class="category-meta">
+                    <span>25 Questions</span>
+                    <span class="diff-medium">Medium</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    
+
+    <script>
+        function selectCategory(category)  {
+            // Save the chosen category to localStorage
+            localStorage.setItem("selectedCategory", category);
+            localStorage.setItem("quizType", "builtin");
+            localStorage.removeItem("communityquizId");
+            // Send player to the quiz page
+            window.location.href = "quizs.html";
+        }
+        async function loadCommunityQuizzes() {
+
+            const container = document.getElementById("community-games");
+
+            try {
+                container.innerHTML = "<p style='color:#aaa'>Loading community quizzes...</p>";
+
+                const response = await fetch ("http://localhost:3000/api/quizzes/all");
+
+                const quizzes = await response.json();
+
+                if (quizzes.length === 0) {
+                    container.innerHTML = "<p style='color:#aaa'>No community quizzes yet — be the first to create one!</p>";
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                quizzes.forEach(function(quiz){
+
+                    const card = document.createElement("div");
+
+                    card.className = "community-quiz-card";
+
+                    card.onclick = function() {
+                        selectCommunityQuiz(quiz._id); 
+                    };
+
+                    card.innerHTML = `
+                    <h3>${quiz.title}</h3>
+                    <p>By ${quiz.createdBy}</p>
+                    <div class="community-quiz-meta">
+                        <span>${quiz.questions.length} questions</span>
+                        <span>${quiz.plays} plays</span>
+                    </div>
+                `;
+
+                container.appendChild(card);
+                });
+
+            } catch (error) {
+                container.innerHTML = "<p style='color:#f44336'>Could not load quizzes. Is the server running?</p>";
+            }
+        }
+    
+
+        function selectCommunityQuiz(quizId) {          
+            localStorage.setItem("communityQuizId", quizId);  
+
+            localStorage.setItem("quizType", "community");
+
+            window.location.href = "quizs.html";
+        } 
+
+        window.onload = function() {
+        
+                loadCommunityQuizzes();  // existing code
+            
+                // ADD THIS BELOW existing code
+                const username = localStorage.getItem("username");
+                const token    = localStorage.getItem("token");
+            
+                if (username && token) {
+                    const nav    = document.querySelector(".nav ul");
+                    const li     = document.createElement("li");
+                    li.innerHTML = `
+                        <a href="profile.html?username=${username}">
+                            👾 ${username}
+                        </a>
+                    `;
+                    nav.appendChild(li);
+                }
+            };
+        
+                
+
+
+    </script>
+
+</body>
+</html>

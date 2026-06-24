@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav class="nav">
+        <ul>
+            <a href="Home.html" class="nav-logo">QUIZER</a>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="auth-wrapper">
+        <div class="auth-box">
+
+            <h1 class="auth-title">Reset Password 🔑</h1>
+            <p class="auth-subtitle">Enter your new password below</p>
+
+            <div class="auth-error"   id="error-message"></div>
+            <div class="auth-success" id="success-message"></div>
+
+            <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password"
+                    placeholder="At least 6 characters"/>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password"
+                    placeholder="Repeat your new password"/>
+            </div>
+
+            <button class="auth-btn" onclick="resetPassword()">
+                Set New Password 🔑
+            </button>
+
+        </div>
+    </div>
+    <script>
+// Get token from URL
+// e.g. reset.html?token=abc123
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const token    = urlParams.get("token");
+
+      window.onloadn = function() {
+        if (!toke) {
+            window.location.href = "forgot.html";''
+        }
+      };
+
+      async function resetPassword() {
+
+        const newPassword     = document.getElementById("new-password").value;
+        const confirmPassword = document.getElementById("confirm-password").value;
+    
+        showError("");
+        showSuccess("");
+    
+        if (!newPassword || !confirmPassword) {
+            showError("Both fields are required");
+            return;
+        }
+    
+        if (newPassword.length < 6) {
+            showError("Password must be at least 6 characters");
+            return;
+        }
+    
+        if (newPassword !== confirmPassword) {
+            showError("Passwords do not match");
+            return;
+        }
+    
+        try {
+    
+            const response = await fetch(
+                "http://localhost:3000/api/auth/reset",
+                {
+                    method:  "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({ token, newPassword })
+                }
+            );
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                showSuccess("Password reset! Redirecting to login...");
+                setTimeout(function() {
+                    window.location.href = "login.html";
+                }, 2000);
+            } else {
+                showError(data.message);
+            }
+    
+        } catch (error) {
+            showError("Cannot connect to server. Is it running?");
+        }
+    
+    }
+    
+    function showError(message) {
+        const el         = document.getElementById("error-message");
+        el.textContent   = message;
+        el.style.display = message ? "block" : "none";
+    }
+    
+    function showSuccess(message) {
+        const el         = document.getElementById("success-message");
+        el.textContent   = message;
+        el.style.display = message ? "block" : "none";
+    }
+    
+    // Removed redundant declaration of token
+    
+    window.onload = function() {
+        if (!token) {
+            window.location.href = "forgot.html";
+        }
+    };
+           
+    </script>
+</body>
+</html>

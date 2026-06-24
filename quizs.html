@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- NAV BAR -->
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Create Quiz — Quizer 🎮</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+    
+        <nav class="nav">
+            <ul>
+                <a href="Home.html" class="nav-logo">QUIZER</a>
+                <li><a href="Home.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="Games.html" class="active">Games</a>
+                    <div class="dropdown-content">
+                        <a href="Games.html">All Categories</a>
+                        <a href="quizs.html">Play Quiz</a>
+                        <a href="create-quiz.html">Create Quiz</a>
+                    </div>
+                </li>
+                <li><a href="Leaderboard.html">Leaderboard</a></li>
+                <li><a href="login.html" class="active">Login</a></li>
+            </ul>
+        </nav>
+    
+       
+    <!-- QUIZ WRAPPER -->
+    <div class="quiz-wrapper">
+
+        <!-- QUIZ CONTAINER -->
+        <div class="container" id="quiz-container">
+
+            <div class="header">
+                <h1 id="quiz-title">🎮 Gaming Quiz</h1>
+                <div class="score-tracker">
+                    Score: <span id="score">0</span>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+
+            <div class="timer-section">
+                <div class="timer-display">
+                    <span id="timer-number">15</span>
+                    <span class="timer-label">seconds</span>
+                </div>
+                <div class="timer-bar-track">
+                    <div class="timer-bar-fill" id="timer-bar-fill"></div>
+                </div>
+            </div>
+
+            <p class="question-counter" id="question-counter"></p>
+
+            <div class="question-box">
+                <p id="question-text"></p>
+            </div>
+
+            <p class="questions-left" id="questions-left"></p>
+
+            <div class="answers-grid" id="answers-grid"></div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+                Next Question ➡️
+            </button>
+
+        </div>
+
+        <!-- RESULTS SCREEN -->
+        <div class="results-screen" id="results-screen">
+
+            <h2>Quiz Complete! 🏆</h2>
+            <p id="star-rating"></p>
+            <p id="final-score"></p>
+            <p id="result-message"></p>
+
+            <div class="leaderboard">
+                <h3>🏆 Recent Scores</h3>
+                <div id="leaderboard-list"></div>
+                <button class="clear-btn" onclick="clearLeaderboard()">
+                    Clear Scores 🗑️
+                </button>
+            </div>
+
+            <button class="play-again-btn" onclick="restartQuiz()">
+                Play Again 🔄
+            </button>
+
+            <button class="home-btn" onclick="window.location.href='Games.html'">
+                Choose Category
+            </button>"
+
+        </div>
+
+    </div>
+
+    <!-- load questions FIRST then quiz logic -->
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+
+    <script>
+
+        window.onload = function() {
+            loadCommunityQuizzes();  // existing code
+        
+            // ADD THIS BELOW existing code
+            const username = localStorage.getItem("username");
+            const token    = localStorage.getItem("token");
+        
+            if (username && token) {
+                const nav    = document.querySelector(".nav ul");
+                const li     = document.createElement("li");
+                li.innerHTML = `
+                    <a href="profile.html?username=${username}">
+                        👾 ${username}
+                    </a>
+                `;
+                nav.appendChild(li);
+            }
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav class="nav">
+        <ul>
+            <a href="Home.html" class="nav-logo">QUIZER</a>
+            <li><a href="Home.html">Home</a></li>
+            <li class="dropdown">
+                <a href="Games.html">Games</a>
+                <div class="dropdown-content">
+                    <a href="Games.html">All Categories</a>
+                    <a href="quizs.html">Play Quiz</a>
+                    <a href="create-quiz.html">Create Quiz</a>
+                </div>
+            </li>
+            <li><a href="Leaderboard.html">Leaderboard</a></li>
+            <li><a href="login.html" class="active">Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-container">
+
+        <div id="profile-content">
+            <p style="text-align:center; color:#aaa;">Loading profile...</p>
+        </div>
+
+    </div>
+
+    <script>
+
+        // ============================================
+        // GET USERNAME FROM URL
+        // ============================================
+    
+        const urlParams        = new URLSearchParams(window.location.search);
+        const profileUsername  = urlParams.get("username");
+        const loggedInUsername = localStorage.getItem("username");
+    
+    
+        // ============================================
+        // LOAD PROFILE DATA
+        // ============================================
+    
+        async function loadProfile() {
+    
+            const container = document.getElementById("profile-content");
+    
+            if (!profileUsername) {
+                container.innerHTML =
+                    "<p style='text-align:center; color:#f44336;'>No username provided</p>";
+                return;
+            }
+    
+            try {
+    
+                const response = await fetch(
+                    "http://localhost:3000/api/profile/" + profileUsername
+                );
+    
+                const data = await response.json();
+    
+                if (!response.ok) {
+                    container.innerHTML =
+                        "<p style='text-align:center; color:#f44336;'>" +
+                        data.message + "</p>";
+                    return;
+                }
+    
+                renderProfile(data);
+    
+            } catch (error) {
+                container.innerHTML =
+                    "<p style='text-align:center; color:#f44336;'>Cannot connect to server</p>";
+            }
+    
+        }
+    
+    
+        // ============================================
+        // RENDER THE PROFILE
+        // ============================================
+    
+        function renderProfile(data) {
+    
+            const container = document.getElementById("profile-content");
+    
+            const isOwnProfile = loggedInUsername === data.username;
+    
+            const joinDate     = new Date(data.memberSince);
+            const joinDateText = joinDate.toLocaleDateString("en-GB", {
+                year:  "numeric",
+                month: "long"
+            });
+    
+            // Best score HTML
+            let bestScoreHTML = "<p style='color:#aaa;'>No games played yet</p>";
+            if (data.bestScore) {
+                bestScoreHTML = `
+                    <p style="font-size:1.3rem; color:#6366f1; font-weight:bold;">
+                        ${data.bestScore.score} / ${data.bestScore.total}
+                    </p>
+                    <p style="color:#aaa; font-size:0.85rem;">
+                        ${data.bestScore.category}
+                    </p>
+                `;
+            }
+    
+            // Quizzes HTML
+            let quizzesHTML = "<p style='color:#aaa;'>No quizzes created yet</p>";
+            if (data.createdQuizzes.length > 0) {
+                quizzesHTML = data.createdQuizzes.map(function(quiz) {
+    
+                    const deleteBtn = isOwnProfile
+                        ? `<button class="delete-quiz-btn"
+                               onclick="deleteQuiz(this.dataset.id)"
+                               data-id="${quiz._id}">
+                               Delete ❌
+                           </button>`
+                        : "";
+    
+                    return `
+                        <div class="profile-quiz-card">
+                            <h3>${quiz.title}</h3>
+                            <div class="profile-quiz-meta">
+                                <span>${quiz.questions.length} questions</span>
+                                <span>${quiz.plays} plays</span>
+                            </div>
+                            ${deleteBtn}
+                        </div>
+                    `;
+    
+                }).join("");
+            }
+    
+            // Render everything
+            container.innerHTML = `
+    
+                <div class="profile-header">
+                    <div class="profile-avatar">👾</div>
+                    <h1>${data.username}</h1>
+                    <p class="profile-joined">Member since ${joinDateText}</p>
+                </div>
+    
+                <div class="profile-stats">
+                    <div class="profile-stat-box">
+                        <span class="profile-stat-number">${data.totalGamePlayed}</span>
+                        <span class="profile-stat-label">Quizzes Played</span>
+                    </div>
+                    <div class="profile-stat-box">
+                        <span class="profile-stat-number">${data.quizzesCreated}</span>
+                        <span class="profile-stat-label">Quizzes Created</span>
+                    </div>
+                </div>
+    
+                <div class="profile-section">
+                    <h2>🏆 Best Score</h2>
+                    ${bestScoreHTML}
+                </div>
+    
+                <div class="profile-section">
+                    <h2>📝 ${isOwnProfile ? "My" : data.username + "'s"} Quizzes</h2>
+                    ${quizzesHTML}
+                </div>
+    
+            `;
+    
+        }
+    
+    
+        // ============================================
+        // DELETE A QUIZ
+        // ============================================
+    
+        async function deleteQuiz(quizId) {
+    
+            const confirmed = confirm("Are you sure you want to delete this quiz?");
+            if (!confirmed) return;
+    
+            const token = localStorage.getItem("token");
+    
+            if (!token) {
+                alert("You must be logged in to delete a quiz");
+                return;
+            }
+    
+            try {
+    
+                const response = await fetch(
+                    "http://localhost:3000/api/quizzes/" + quizId,
+                    {
+                        method:  "DELETE",
+                        headers: {
+                            "Authorization": "Bearer " + token
+                        }
+                    }
+                );
+    
+                const data = await response.json();
+    
+                if (response.ok) {
+                    alert("Quiz deleted successfully!");
+                    loadProfile();
+                } else {
+                    alert(data.message);
+                }
+    
+            } catch (error) {
+                alert("Cannot connect to server");
+            }
+    
+        }
+    
+    
+        // ============================================
+        // START
+        // ============================================
+    
+        window.onload = function() {
+            loadProfile();
+            loadCommunityQuizzes();  // existing code
+        
+            // ADD THIS BELOW existing code
+            const username = localStorage.getItem("username");
+            const token    = localStorage.getItem("token");
+        
+            if (username && token) {
+                const nav    = document.querySelector(".nav ul");
+                const li     = document.createElement("li");
+                li.innerHTML = `
+                    <a href="profile.html?username=${username}">
+                        👾 ${username}
+                    </a>
+                `;
+                nav.appendChild(li);
+            }
+        };
+
+    
+    </script>
+</body>
+</html>

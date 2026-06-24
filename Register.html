@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- NAV BAR -->
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav class="nav">
+        <ul>
+            <a href="Home.html" class="nav-logo">QUIZER</a>
+            <li><a href="Home.html">Home</a></li>
+            <li class="dropdown">
+                <a href="Games.html" class="active">Games</a>
+                <div class="dropdown-content">
+                    <a href="Games.html">All Categories</a>
+                    <a href="quizs.html">Play Quiz</a>
+                    <a href="create-quiz.html">Create Quiz</a>
+                </div>
+            </li>
+            <li><a href="Leaderboard.html">Leaderboard</a></li>
+            <li><a href="login.html" class="active">Login</a></li>
+        </ul>
+    </nav>
+
+    
+        <!-- QUIZ DETAILS -->
+        
+    <div class="auth-wrapper">
+        <div class="auth-box">
+
+            <h1 class="auth-title"> Create Account </h1>
+            <p class="auth-subtitle"> Join Quizer and start playing!</p>
+
+            <div class="auth-error" id="error-message"></div>
+
+            <div class="auth-success" id="success-message"> </div>
+
+            <div class="form-group">
+                <label for="username"> Username </label>
+                <input
+                   type="text"
+                   id="username"
+                   placeholder="Enter your username"
+                   maxlength="20"
+                   />
+            </div>
+            <div class="form-group">
+                <label for="email"> Email </label>
+                    <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    />
+            </div>
+            <div class="form-group">
+                <label for="password"> Pasword</label>
+                <input
+                 type="password"
+                 id="password"
+                 placeholder="Enter your password"
+                 />
+            </div>
+<!-- DATE OF BIRTH -->
+            <div class="form-group">
+                <label for="dob">Date of Birth</label>
+                <input
+                type="date"
+                id="dob"
+                 max="" 
+                 />
+             </div>
+
+            <div class="form-group">
+                <label for="password"> Confirm Password </label>
+                <input
+                   type="password"
+                   id="confirm-password"
+                   placeholder="Repeat your password"
+                   />
+
+                   <!--- REGISTER BUTTON-->
+                   <button class="auth-btn" id="register-btn" onclick="register()">
+                    <label for="register-btn"> Create Account 🎮 </label>
+
+                   </button>
+
+                   <!---Link to login--->
+                   <p class="auth-switch">
+                Already have an account?
+                <a href="login.html"> Login here </a>
+                   </p>
+            </div>
+        </div>
+        
+        <!-- REGISTER FUNCTION -->
+
+        <script>
+
+            async function register() {
+        
+                const username        = document.getElementById("username").value.trim();
+                const email           = document.getElementById("email").value.trim();
+                const password        = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirm-password").value;
+                const dob            = document.getElementById("dob").value;
+        
+                showError("");
+                showSuccess("");
+        
+                if (!username || !email || !password || !confirmPassword || !dob) {
+                    showError("All fields are required");
+                    return;
+                }
+                   const dobDate     = new Date(dob);
+                   const today       = Date();
+                   const age         = today.getFullYear() - dobDate.getFullYear();
+                   if (age < 16) {
+                      showError("You must be at least 16 years old to register");
+                      return;
+                   }      
+
+                if (username.length < 3) {
+                    showError("Username must be at least 3 characters");
+                    return;
+                }
+        
+                if (password.length < 6) {
+                    showError("Password must be at least 6 characters");
+                    return;
+                }
+        
+                if (password !== confirmPassword) {
+                    showError("Passwords do not match");
+                    return;
+                }
+        
+                const btn       = document.getElementById("register-btn");
+                btn.textContent = "Creating account...";
+                btn.disabled    = true;
+        
+                try {
+        
+                    const response = await fetch("http://localhost:3000/api/auth/register", {
+                        method:  "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body:    JSON.stringify({ username, email, password })
+                    });
+        
+                    const data = await response.json();
+        
+                    if (response.ok) {
+                        showSuccess("Account created! Redirecting to login...");
+                        setTimeout(function() {
+                            window.location.href = "login.html";
+                        }, 2000);
+                    } else {
+                        showError(data.message);
+                        btn.textContent = "Create Account 🎮";
+                        btn.disabled    = false;
+                    }
+        
+                } catch (error) {
+                    showError("Cannot connect to server. Is it running?");
+                    btn.textContent = "Create Account 🎮";
+                    btn.disabled    = false;
+                }
+        
+            }
+
+            window.onload = function() {
+                const today = new Date().toISOString().split("T")[0];
+                document.getElementById("dob").max = today;
+            };
+        
+            function showError(message) {
+                const el         = document.getElementById("error-message");
+                el.textContent   = message;
+                el.style.display = message ? "block" : "none";
+            }
+        
+            function showSuccess(message) {
+                const el         = document.getElementById("success-message");
+                el.textContent   = message;
+                el.style.display = message ? "block" : "none";
+            }
+        
+            document.addEventListener("keypress", function(e) {
+                if (e.key === "Enter") register();
+            });
+            window.onload = function() {
+                loadCommunityQuizzes();  // existing code
+            
+                // ADD THIS BELOW existing code
+                const username = localStorage.getItem("username");
+                const token    = localStorage.getItem("token");
+            
+                if (username && token) {
+                    const nav    = document.querySelector(".nav ul");
+                    const li     = document.createElement("li");
+                    li.innerHTML = `
+                        <a href="profile.html?username=${username}">
+                            👾 ${username}
+                        </a>
+                    `;
+                    nav.appendChild(li);
+                }
+            };
+        </script>
+        </div>
+
+    </body>

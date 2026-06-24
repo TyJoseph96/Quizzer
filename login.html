@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- NAV BAR -->
+    <nav class="nav">
+        <ul>
+            <a href="Home.html" class="nav-logo">QUIZER</a>
+            <li><a href="Home.html">Home</a></li>
+            <li class="dropdown">
+                <a href="Games.html">Games</a>
+                <div class="dropdown-content">
+                    <a href="Games.html">All Categories</a>
+                    <a href="quizs.html">Play Quiz</a>
+                </div>
+            </li>
+            <li><a href="Leaderboard.html">Leaderboard</a></li>
+            <li><a href="login.html" class="active">Login</a></li>
+        </ul>
+    </nav>
+
+    <!-- LOGIN FORM -->
+    <div class="auth-wrapper">
+        <div class="auth-box">
+
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to save your scores 🏆</p>
+
+            <!-- error message -->
+            <div class="auth-error" id="error-message"></div>
+
+            <!-- USERNAME -->
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter your username"
+                />
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                />
+            </div>
+
+            <!-- LOGIN BUTTON -->
+            <button class="auth-btn" id="login-btn" onclick="login()">
+                Login 🎮
+            </button>
+
+            <!-- LINK TO REGISTER -->
+            <p class="auth-switch">
+                Don't have an account?
+                <a href="register.html">Create one here</a>
+
+                <!-- ADD THIS -->
+             <p class="auth-switch" style="margin-top: 10px;">
+                 Forgot your details?
+                 <a href="forgot.html">Recover here</a>
+                </p>
+            </p>
+
+        </div>
+    </div>
+
+    <script>
+
+        async function login() {
+    
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+    
+            showError("");
+    
+            if (!username || !password) {
+                showError("Both fields are required");
+                return;
+            }
+    
+            const btn       = document.getElementById("login-btn");
+            btn.textContent = "Logging in...";
+            btn.disabled    = true;
+    
+            try {
+    
+                const response = await fetch("http://localhost:3000/api/auth/login", {
+                    method:  "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body:    JSON.stringify({ username, password })
+                });
+    
+                const data = await response.json();
+    
+                if (response.ok) {
+                    localStorage.setItem("token",    data.token);
+                    localStorage.setItem("username", data.username);
+                    window.location.href = "Home.html";
+                } else {
+                    showError(data.message);
+                    btn.textContent = "Login 🎮";
+                    btn.disabled    = false;
+                }
+    
+            } catch (error) {
+                showError("Cannot connect to server. Is it running?");
+                btn.textContent = "Login 🎮";
+                btn.disabled    = false;
+            }
+    
+        }
+    
+        function showError(message) {
+            const el         = document.getElementById("error-message");
+            el.textContent   = message;
+            el.style.display = message ? "block" : "none";
+        }
+    
+        document.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") login();
+        });
+    
+        window.onload = function() {
+            if (localStorage.getItem("token")) {
+                window.location.href = "Home.html";
+            }
+          
+                
+            
+                // ADD THIS BELOW existing code
+                const username = localStorage.getItem("username");
+                const token    = localStorage.getItem("token");
+            
+                if (username && token) {
+                    const nav    = document.querySelector(".nav ul");
+                    const li     = document.createElement("li");
+                    li.innerHTML = `
+                        <a href="profile.html?username=${username}">
+                            👾 ${username}
+                        </a>
+                    `;
+                    nav.appendChild(li);
+                }
+            };
+    
+    </script>
+
+</body>
+</html>

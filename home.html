@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizer 🎮</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- NAV BAR -->
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Create Quiz — Quizer 🎮</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+    
+        <nav class="nav">
+            <ul>
+                <a href="Home.html" class="nav-logo">QUIZER</a>
+                <li><a href="Home.html">Home</a></li>
+                <li class="dropdown">
+                    <a href="Games.html" class="active">Games</a>
+                    <div class="dropdown-content">
+                        <a href="Games.html">All Categories</a>
+                        <a href="quizs.html">Play Quiz</a>
+                        <a href="create-quiz.html">Create Quiz</a>
+                    </div>
+                </li>
+                <li><a href="Leaderboard.html">Leaderboard</a></li>
+                <li><a href="login.html" class="active">Login</a></li>
+            </ul>
+        </nav>
+    
+
+
+    </nav>
+    <!-- HERO SECTION -->
+    <div class="hero">
+
+        <h1 class="hero-title">🎮 QUIZER</h1>
+
+        <p class="hero-subtitle">
+            Test your gaming knowledge across 5 categories.
+            From retro classics to modern shooters — how much do you really know?
+        </p>
+
+        <div class="hero-buttons">
+            <a href="Games.html" class="btn-primary">Play Now 🕹️</a>
+            <a href="Leaderboard.html" class="btn-secondary">Leaderboard 🏆</a>
+        </div>
+
+        <!-- STATS ROW -->
+        <div class="hero-stats">
+            <div class="stat-box">
+                <span class="stat-number">5</span>
+                <span class="stat-label">Categories</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">125</span>
+                <span class="stat-label">Questions</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">15s</span>
+                <span class="stat-label">Per Question</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">∞</span>
+                <span class="stat-label">Replays</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+ // Show username in nav if logged 
+ window.onload = function() {
+    const username = localStorage.getItem("username");
+    const token    = localStorage.getItem("token");
+
+    if (username && token) {
+        //FIND THE LOGIN NAV ITEM AND REPLACE WITH USER NAME AND LOG OUT
+        const nav = document.querySelector(".nav ul");
+        const loginLi = document.createElement("li");
+        loginLi.innerHTML = `
+                <span style="color:#6366f1; padding: 8px 16px;">
+                    👾 ${username}
+                </span>
+                <a href="#" onclick="logout()" 
+                   style="color:#f44336;">
+                    Logout
+                </a>
+            `;
+       
+    nav.appendChild(loginLi);
+}
+};
+
+function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    window.localStorage.href = "login.html";
+}
+ 
+
+    </script>
+
+</body>
+</html>
